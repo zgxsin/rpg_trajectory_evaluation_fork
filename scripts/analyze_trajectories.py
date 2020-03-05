@@ -13,29 +13,69 @@ import plot_utils as pu
 import results_writer as res_writer
 
 rc('font', **{'family': 'serif', 'serif': ['Cardo']})
-rc('text', usetex=True)
+# rc('text', usetex=True)
+rc('text', usetex=False)
 
 FORMAT = '.pdf'
 
-ALGORITHM_CONFIGS = ['vio_mono', 'vio_stereo']
-
+# ALGORITHM_CONFIGS = ['vio_mono', 'vio_stereo']
+ALGORITHM_CONFIGS = ['ORB_SLAM2', 'Inst_Soft_DiffDyn', 'Inst_Hard_DiffDyn']
+# ALGORITHM_CONFIGS = ['ORB_SLAM2', 'VSO_RE', 'COMB_HARD', 'COMB_SOFT']
+# ALGORITHM_CONFIGS = [
+#                     # 'VSO',
+#                     #  'VSO+',
+#                     # # 'VSO_Disable',
+#                     #  'VSO_OnlyInstance',
+#                     #     'VSO_OnlyPixel',
+#                         'Mode0',
+#                         # 'Mode1',
+#                         'Mode2',
+#                         # 'Mode2_Edge',
+#                         # 'Mode3',
+#                         # 'VSOPaper_w',
+#                         # 'VSOPaper_1',
+#                         # 'Mode2+',
+#                      # 'ORB_SLAM',
+#                     # 'VSO_NoCategories',
+#                     # 'NewVSO_NoSem',
+#                     # 'OldVSO_NoSem',
+#                     # 'NewVSO_WithSem',
+#                     # 'OldVSO_WithSem',
+#                     # 'NewVSO_WithInstSem',
+#                     # 'NewVSO_WithBothSem',
+#                     # 'ORB_SLAM_FromVSO',
+#                     #  'VSO_Instance+',
+#                     #  'VSO_Instance++',
+#                     # 'VSO_Instance+++',
+#                      ]
 # These are the labels that will be displayed for items in ALGORITHM_CONFIGS
-PLOT_LABELS = {'vio_mono': 'vio mono',
-               'vio_stereo': 'vio stereo'}
+# PLOT_LABELS = {'vio_mono': 'vio mono',
+#                'vio_stereo': 'vio stereo'}
+
+
+PLOT_LABELS = {
+                'ORB_SLAM2': 'ORB_SLAM2',
+                # 'ORB_SLAM_FromVSO': 'ORB_SLAM_FromVSO',
+                'VSO_RE': 'VSO_RE',
+                 'COMB_HARD':'COMB_HARD',
+                'COMB_SOFT':'COMB_SOFT',
+                'Inst_Soft_DiffDyn':'Inst_Soft_DiffDyn',
+                'Inst_Hard_DiffDyn':'Inst_Hard_DiffDyn',
+               }
 
 # assgin colors to different configurations
 # make use you have more colors in the pallete!
 pallete = ['b', 'g', 'r', 'c', 'k', 'y', 'm']
-assert len(pallete) > len(
-    ALGORITHM_CONFIGS), "Not enough colors for all configurations"
+assert len(pallete) > len(ALGORITHM_CONFIGS), "Not enough colors for all configurations"
 COLORS = {}
 for i in range(len(ALGORITHM_CONFIGS)):
     COLORS[ALGORITHM_CONFIGS[i]] = pallete[i]
 
 # DATASETS = ['MH_01', 'MH_02', 'MH_03', 'MH_04', 'MH_05', 'V1_01',
             # 'V1_02', 'V1_03', 'V2_01', 'V2_02', 'V2_03']
-DATASETS = ['MH_01', 'MH_03', 'MH_05', 'V2_01', 'V2_02', 'V2_03']
-
+# DATASETS = ['MH_01', 'MH_03', 'MH_05', 'V2_01', 'V2_02', 'V2_03']
+DATASETS = ['KITTI00', 'KITTI01', 'KITTI02', 'KITTI03', 'KITTI04', 'KITTI05','KITTI06', 'KITTI07', 'KITTI08', 'KITTI09', 'KITTI10']
+# DATASETS = ['KITTI02',  'KITTI08', 'KITTI09']
 # The maximum lenght will be used to calculate the relative error.
 # otherwise it is calculated from the groundtruth
 MAX_TRAJ_LENGTHS = {'MH_01': 80.6,
@@ -51,7 +91,7 @@ MAX_TRAJ_LENGTHS = {'MH_01': 80.6,
                     'V2_03': 86.1}
 # boxplot distances that will be used for all datasets for overall errors
 OVERALL_BOXPLOT_DISTANCES = [7.0, 14.0, 21.0, 28.0, 35.0]
-
+# OVERALL_BOXPLOT_DISTANCES = [100, 200, 300, 400, 500, 600, 700, 800]
 
 def compute_odometry_error_per_dataset(dataset_trajectories_dict,
                                        dataset_names):
@@ -413,6 +453,10 @@ if __name__ == '__main__':
     print("#####################################")
     print(">>> Start loading and preprocessing all trajectories...")
     print("#####################################")
+    # new_default_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+    #                                 '../'+ args.results_dir)
+
+
     # organize by configuration
     config_trajectories_list = []
     for config_i in alg:
@@ -422,6 +466,7 @@ if __name__ == '__main__':
             trial_name = args.platform + '_' + config_i + '_' + d
             trace_dir = os.path.join(args.results_dir,
                                      args.platform, config_i, trial_name)
+            print(trace_dir)
             assert os.path.exists(trace_dir), "No corresponding trace dir"
             if args.recalculate_errors:
                 Trajectory.remove_cached_error(trace_dir)

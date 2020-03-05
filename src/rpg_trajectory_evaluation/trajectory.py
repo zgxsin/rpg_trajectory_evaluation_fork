@@ -67,10 +67,10 @@ class Trajectory:
 
         self.load_data()
 
-        if len(preset_boxplot_distances) != 0:
-            self.preset_boxplot_distances = preset_boxplot_distances
-        else:
-            self.compute_boxplot_distances()
+        # if len(preset_boxplot_distances) != 0:
+        #     self.preset_boxplot_distances = preset_boxplot_distances
+        # else:
+        #     self.compute_boxplot_distances()
 
         self.align_trajectory()
 
@@ -205,8 +205,12 @@ class Trajectory:
             self.abs_err_stats_fn)
 
         self.rel_error_stats_fns = []
+        avr_rel_trans_per = 0
+        avr_rel_rot = 0
         for dist in self.rel_errors:
             cur_err = self.rel_errors[dist]
+            avr_rel_trans_per += cur_err['rel_trans_perc_stats']['rmse']
+            avr_rel_rot += cur_err['rel_rot_stats']['rmse']/(dist/100)
             dist_str = "{:3.1f}".format(dist).replace('.', '_')
             dist_fn = os.path.join(
                 self.saved_results_dir,
@@ -222,6 +226,17 @@ class Trajectory:
             res_writer.update_and_save_stats(
                 cur_err['rel_gravity_stats'], 'gravity', dist_fn)
             self.rel_error_stats_fns.append(dist_fn)
+
+        dist_fn_sum = os.path.join(
+            self.saved_results_dir,
+            Trajectory.rel_error_prefix+"average_summary"+'.yaml')
+        average_summary_dict = {'average_rel_rot': float(avr_rel_rot / len(self.rel_errors)),
+                                'average_rel_trans_per': float(avr_rel_trans_per / len(self.rel_errors)),
+                                'absolute_ate_trans': self.abs_errors['abs_e_trans_stats']['rmse'],
+                                'absolute_ate_rot': self.abs_errors['abs_e_rot_stats']['rmse']}
+        res_writer.update_and_save_stats(
+            average_summary_dict, 'vital_statistics', dist_fn_sum)
+        self.rel_error_stats_fns.append(dist_fn_sum)
 
     def compute_relative_error_at_subtraj_len(self, subtraj_len,
                                               max_dist_diff=-1):

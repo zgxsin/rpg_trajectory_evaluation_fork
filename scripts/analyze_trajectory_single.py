@@ -52,7 +52,11 @@ if __name__ == '__main__':
     print(">>> Calculating errors...")
     traj = Trajectory(args.result_dir)
     traj.compute_absolute_error()
-    traj.compute_relative_errors()
+    max_iter = np.floor(traj.traj_length/100)
+    if max_iter > 8:
+        max_iter = 8
+    subtrajectory_list = [num*100 for num in np.arange(1, max_iter+1)]
+    traj.compute_relative_errors(subtrajectory_list)
     traj.cache_current_error()
     traj.write_errors_to_yaml()
 
